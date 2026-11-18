@@ -3,6 +3,7 @@
     "message": "Sit-Stand Timer",
     "description": "Name of the extension."
   },
+  "localCopy": { "message": "local copy" },
   "extDescription": {
     "message": "Reminds you to alternate between sitting and standing at your height-adjustable desk – with the countdown right on the icon.",
     "description": "Short description, at most 132 characters."

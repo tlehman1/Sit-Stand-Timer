@@ -250,6 +250,8 @@ async function updateBadge(state) {
     title = t(toSit ? 'promptSitTitle' : 'promptStandTitle');
   }
 
+  if (await isUnpacked()) title = `${title} (${t('localCopy')})`;
+
   await Promise.all([
     chrome.action.setBadgeText({ text }),
     chrome.action.setBadgeBackgroundColor({ color }),
@@ -257,6 +259,52 @@ async function updateBadge(state) {
     chrome.action.setTitle({ title }),
   ]);
 }
+
+// A copy loaded unpacked from the project folder (next to the one from the Web Store) gets
+// an orange icon, so the two can be told apart in the toolbar. getSelf needs no permission.
+let unpacked = null;
+
+function isUnpacked() {
+  unpacked ??= chrome.management
+    .getSelf()
+    .then((info) => info.installType === 'development')
+    .catch(() => false);
+  return unpacked;
+}
+
+const ORANGE_DARK = [154, 52, 18];
+const ORANGE_LIGHT = [234, 88, 12];
+const mix = (from, to, amount) => from.map((value, i) => Math.round(value + (to[i] - value) * amount));
+const clamp01 = (value) => Math.min(1, Math.max(0, value));
+
+// Repaints the indigo tile orange and leaves the white desk and the teal arrow alone.
+async function orangeIcon(size) {
+  const blob = await (await fetch(chrome.runtime.getURL(`icons/icon${size}.png`))).blob();
+  const canvas = new OffscreenCanvas(size, size);
+  const context = canvas.getContext('2d');
+  context.drawImage(await createImageBitmap(blob), 0, 0);
+  const image = context.getImageData(0, 0, size, size);
+  const pixels = image.data;
+  for (let i = 0; i < pixels.length; i += 4) {
+    const [r, g, b] = [pixels[i], pixels[i + 1], pixels[i + 2]];
+    if (pixels[i + 3] === 0 || b < r + 25 || b < g + 25) continue;
+    // The tile runs from #14163A to #2B2F77; brighter blue pixels are blended with the desk.
+    const color =
+      b <= 119
+        ? mix(ORANGE_DARK, ORANGE_LIGHT, clamp01((b - 58) / 61))
+        : mix(ORANGE_LIGHT, [255, 255, 255], clamp01((r - 43) / 212));
+    [pixels[i], pixels[i + 1], pixels[i + 2]] = color;
+  }
+  return image;
+}
+
+async function markUnpackedIcon() {
+  if (!(await isUnpacked())) return;
+  const [small, large] = await Promise.all([orangeIcon(16), orangeIcon(32)]);
+  await chrome.action.setIcon({ imageData: { 16: small, 32: large } });
+}
+
+markUnpackedIcon().catch((error) => console.error(error));
 
 // ---------------------------------------------------------------------------
 // Reminder: a chime plus the popup under the toolbar icon

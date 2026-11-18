@@ -3,6 +3,7 @@
     "message": "Sitz-Steh-Timer",
     "description": "Name der Erweiterung."
   },
+  "localCopy": { "message": "lokale Version" },
   "extDescription": {
     "message": "Erinnert dich am höhenverstellbaren Schreibtisch an den Wechsel zwischen Sitzen und Stehen – mit Countdown im Symbol.",
     "description": "Kurzbeschreibung, höchstens 132 Zeichen."
