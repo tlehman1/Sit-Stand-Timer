@@ -6,7 +6,7 @@ Alles, was du beim Einreichen brauchst: die Dateien, die Texte zum Einfügen und
 
 | Wofür | Datei |
 | --- | --- |
-| Paket zum Hochladen | `dist/sit-stand-timer-1.0.1.zip` |
+| Paket zum Hochladen | `dist/sit-stand-timer-1.0.2.zip` |
 | Store-Symbol (128 × 128) | `extension/icons/icon128.png` |
 | Screenshots Englisch (1280 × 800) | `store/screenshots/en/` |
 | Screenshots Deutsch (1280 × 800) | `store/screenshots/de/` |
@@ -33,7 +33,7 @@ node tools\make-store-images.mjs
 
 ## 2. Paket hochladen
 
-Im Dashboard ein neues Element anlegen („Add new item") und `dist/sit-stand-timer-1.0.1.zip` hochladen. Titel und Kurzbeschreibung übernimmt der Store aus dem Paket, in Englisch und Deutsch.
+Im Dashboard ein neues Element anlegen („Add new item") und `dist/sit-stand-timer-1.0.2.zip` hochladen. Titel und Kurzbeschreibung übernimmt der Store aus dem Paket, in Englisch und Deutsch.
 
 ## 3. Reiter „Store-Eintrag" (Store listing)
 
@@ -58,6 +58,7 @@ Features
 • "Remind me in 5 minutes" if now is a bad moment
 • Confirm each change yourself, or let the next phase start automatically
 • Pause, stop or switch position by hand at any time
+• Pauses by itself while your computer is locked and continues when you unlock it
 • If Chrome is not in front, a system notification takes over
 • Volume control and a test button for the chime
 • Light and dark theme, English and German
@@ -80,6 +81,7 @@ Funktionen
 • „In 5 Minuten erinnern", wenn es gerade nicht passt
 • Wechsel selbst bestätigen oder die nächste Phase automatisch starten lassen
 • Jederzeit pausieren, stoppen oder die Position von Hand wechseln
+• Hält von selbst an, solange der PC gesperrt ist, und läuft beim Entsperren weiter
 • Ist Chrome nicht im Vordergrund, übernimmt eine Systembenachrichtigung
 • Lautstärkeregler und Testknopf für den Ton
 • Helles und dunkles Design, Deutsch und Englisch
@@ -120,6 +122,12 @@ Shows a system notification when a phase is over and the reminder popup cannot b
 
 ```text
 Opens an offscreen document with the reason AUDIO_PLAYBACK to play a short chime when a phase is over. The chime is synthesised locally with the Web Audio API; service workers cannot play audio. The document closes itself right after the chime.
+```
+
+`idle`
+
+```text
+Pauses the timer while the screen is locked and resumes it when the user unlocks the computer, so time away from the desk does not count as sitting or standing. Only the locked/active state is used; no activity data is stored or sent anywhere.
 ```
 
 Host-Berechtigungen fordert die Erweiterung nicht an.

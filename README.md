@@ -6,6 +6,7 @@ Chrome-Erweiterung für den höhenverstellbaren Schreibtisch: Du legst fest, wie
 - Countdown im Symbol, blauviolett beim Sitzen, grün beim Stehen
 - Erinnerung mit Animation und Ton, „In 5 Minuten erinnern"
 - Wechsel bestätigen oder nächste Phase automatisch starten
+- Hält an, solange der PC gesperrt ist, und läuft beim Entsperren weiter
 - Systembenachrichtigung, wenn Chrome nicht im Vordergrund ist
 - Helles und dunkles Design, Deutsch und Englisch
 - Keine Datenerhebung, keine Netzwerkzugriffe

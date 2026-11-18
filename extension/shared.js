@@ -24,6 +24,8 @@ export const DEFAULT_STATE = Object.freeze({
   remainingMs: null,
   durationMs: null,
   prompt: null,
+  // true while the timer is paused because the screen is locked (it resumes on unlock).
+  pausedByLock: false,
 });
 
 export const otherPhase = (phase) => (phase === 'sit' ? 'stand' : 'sit');

@@ -90,6 +90,7 @@ async function startPhase(phase, { durationMs, prompt = null } = {}) {
     remainingMs: null,
     durationMs: duration,
     prompt,
+    pausedByLock: false,
   });
   await scheduleAlarms(endTime);
   await updateBadge(state);
@@ -105,7 +106,8 @@ async function start({ phase } = {}) {
   }
 }
 
-async function pause() {
+// byLock: paused because the screen was locked, so unlocking resumes it.
+async function pause({ byLock = false } = {}) {
   const state = await loadState();
   if (state.status !== 'running') return;
   await clearAlarms();
@@ -114,6 +116,7 @@ async function pause() {
       status: 'paused',
       endTime: null,
       remainingMs: Math.max(0, state.endTime - Date.now()),
+      pausedByLock: byLock,
     }),
   );
 }
@@ -122,7 +125,9 @@ async function resume() {
   const state = await loadState();
   if (state.status !== 'paused') return;
   const endTime = Date.now() + state.remainingMs;
-  await updateBadge(await setState({ status: 'running', endTime, remainingMs: null }));
+  await updateBadge(
+    await setState({ status: 'running', endTime, remainingMs: null, pausedByLock: false }),
+  );
   await scheduleAlarms(endTime);
 }
 
@@ -135,9 +140,21 @@ async function stop() {
       remainingMs: null,
       durationMs: null,
       prompt: null,
+      pausedByLock: false,
     }),
   );
   await dismissNotification();
+}
+
+// Locking the screen pauses a running timer; unlocking resumes it, but only if it was the
+// lock that paused it. Being idle without a lock changes nothing.
+async function handleIdleState(idleState) {
+  const state = await loadState();
+  if (idleState === 'locked' && state.status === 'running') {
+    await pause({ byLock: true });
+  } else if (idleState === 'active' && state.status === 'paused' && state.pausedByLock) {
+    await resume();
+  }
 }
 
 // While idle the phase switch preselects the phase. While a phase runs it does not touch
@@ -426,6 +443,8 @@ async function ensureOffscreenDocument() {
 // ---------------------------------------------------------------------------
 // Events
 // ---------------------------------------------------------------------------
+
+chrome.idle.onStateChanged.addListener((idleState) => enqueue(() => handleIdleState(idleState)));
 
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === ALARM_END) enqueue(handlePhaseEnd);
