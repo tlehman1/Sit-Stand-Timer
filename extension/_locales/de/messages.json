@@ -1,0 +1,81 @@
+{
+  "extName": {
+    "message": "Sitz-Steh-Timer",
+    "description": "Name der Erweiterung."
+  },
+  "extDescription": {
+    "message": "Erinnert dich am höhenverstellbaren Schreibtisch an den Wechsel zwischen Sitzen und Stehen – mit Countdown im Symbol.",
+    "description": "Kurzbeschreibung, höchstens 132 Zeichen."
+  },
+
+  "phaseSit": { "message": "Sitzen" },
+  "phaseStand": { "message": "Stehen" },
+  "phaseGroupLabel": { "message": "Aktuelle Position" },
+
+  "captionIdle": { "message": "Bereit" },
+  "captionSit": { "message": "noch sitzen" },
+  "captionStand": { "message": "noch stehen" },
+  "captionPaused": { "message": "Pausiert" },
+
+  "btnStart": { "message": "Starten" },
+  "btnPause": { "message": "Pause" },
+  "btnResume": { "message": "Weiter" },
+  "btnStop": { "message": "Stopp" },
+  "btnStopTimer": { "message": "Timer stoppen" },
+  "btnOk": { "message": "OK" },
+  "btnDone": { "message": "Erledigt – Timer starten" },
+  "btnDoneShort": { "message": "Erledigt" },
+  "btnSnooze": {
+    "message": "In $MINUTES$ Min. erinnern",
+    "placeholders": { "minutes": { "content": "$1", "example": "5" } }
+  },
+  "btnSnoozeShort": {
+    "message": "$MINUTES$ Min. später",
+    "placeholders": { "minutes": { "content": "$1", "example": "5" } }
+  },
+
+  "promptStandTitle": { "message": "Zeit zum Stehen!" },
+  "promptStandText": { "message": "Fahr deinen Schreibtisch hoch." },
+  "promptSitTitle": { "message": "Zeit zum Sitzen!" },
+  "promptSitText": { "message": "Fahr deinen Schreibtisch herunter." },
+  "promptNextStand": {
+    "message": "Danach: $MINUTES$ Min. stehen",
+    "placeholders": { "minutes": { "content": "$1", "example": "15" } }
+  },
+  "promptNextSit": {
+    "message": "Danach: $MINUTES$ Min. sitzen",
+    "placeholders": { "minutes": { "content": "$1", "example": "45" } }
+  },
+  "promptRunningStand": {
+    "message": "Deine $MINUTES$ Min. Stehen laufen bereits.",
+    "placeholders": { "minutes": { "content": "$1", "example": "15" } }
+  },
+  "promptRunningSit": {
+    "message": "Deine $MINUTES$ Min. Sitzen laufen bereits.",
+    "placeholders": { "minutes": { "content": "$1", "example": "45" } }
+  },
+
+  "settingsTitle": { "message": "Einstellungen" },
+  "settingSit": { "message": "Sitzen" },
+  "settingStand": { "message": "Stehen" },
+  "unitMinutes": { "message": "Min." },
+  "settingDurationHint": { "message": "Geänderte Zeiten gelten ab der nächsten Phase." },
+  "settingSound": { "message": "Ton" },
+  "settingVolume": { "message": "Lautstärke" },
+  "btnTestSound": { "message": "Ton testen" },
+  "settingAutoStart": { "message": "Nächste Phase automatisch starten" },
+  "settingAutoStartHint": { "message": "Aus: Der Timer wartet, bis du den Wechsel bestätigst." },
+
+  "tooltipSit": {
+    "message": "Sitzen – noch $MINUTES$ Min.",
+    "placeholders": { "minutes": { "content": "$1", "example": "45" } }
+  },
+  "tooltipStand": {
+    "message": "Stehen – noch $MINUTES$ Min.",
+    "placeholders": { "minutes": { "content": "$1", "example": "15" } }
+  },
+  "tooltipPaused": {
+    "message": "Pausiert – noch $MINUTES$ Min.",
+    "placeholders": { "minutes": { "content": "$1", "example": "12" } }
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "extName": {
+    "message": "Sit-Stand Timer",
+    "description": "Name of the extension."
+  },
+  "extDescription": {
+    "message": "Reminds you to alternate between sitting and standing at your height-adjustable desk – with the countdown right on the icon.",
+    "description": "Short description, at most 132 characters."
+  },
+
+  "phaseSit": { "message": "Sitting" },
+  "phaseStand": { "message": "Standing" },
+  "phaseGroupLabel": { "message": "Current position" },
+
+  "captionIdle": { "message": "Ready" },
+  "captionSit": { "message": "sitting time left" },
+  "captionStand": { "message": "standing time left" },
+  "captionPaused": { "message": "Paused" },
+
+  "btnStart": { "message": "Start" },
+  "btnPause": { "message": "Pause" },
+  "btnResume": { "message": "Resume" },
+  "btnStop": { "message": "Stop" },
+  "btnStopTimer": { "message": "Stop timer" },
+  "btnOk": { "message": "OK" },
+  "btnDone": { "message": "Done – start timer" },
+  "btnDoneShort": { "message": "Done" },
+  "btnSnooze": {
+    "message": "Remind me in $MINUTES$ min",
+    "placeholders": { "minutes": { "content": "$1", "example": "5" } }
+  },
+  "btnSnoozeShort": {
+    "message": "$MINUTES$ min later",
+    "placeholders": { "minutes": { "content": "$1", "example": "5" } }
+  },
+
+  "promptStandTitle": { "message": "Time to stand up!" },
+  "promptStandText": { "message": "Raise your desk." },
+  "promptSitTitle": { "message": "Time to sit down!" },
+  "promptSitText": { "message": "Lower your desk." },
+  "promptNextStand": {
+    "message": "Up next: $MINUTES$ min standing",
+    "placeholders": { "minutes": { "content": "$1", "example": "15" } }
+  },
+  "promptNextSit": {
+    "message": "Up next: $MINUTES$ min sitting",
+    "placeholders": { "minutes": { "content": "$1", "example": "45" } }
+  },
+  "promptRunningStand": {
+    "message": "Your $MINUTES$ min of standing have already started.",
+    "placeholders": { "minutes": { "content": "$1", "example": "15" } }
+  },
+  "promptRunningSit": {
+    "message": "Your $MINUTES$ min of sitting have already started.",
+    "placeholders": { "minutes": { "content": "$1", "example": "45" } }
+  },
+
+  "settingsTitle": { "message": "Settings" },
+  "settingSit": { "message": "Sitting" },
+  "settingStand": { "message": "Standing" },
+  "unitMinutes": { "message": "min" },
+  "settingDurationHint": { "message": "New durations apply from the next phase." },
+  "settingSound": { "message": "Sound" },
+  "settingVolume": { "message": "Volume" },
+  "btnTestSound": { "message": "Play test sound" },
+  "settingAutoStart": { "message": "Start next phase automatically" },
+  "settingAutoStartHint": { "message": "Off: the timer waits until you confirm the change." },
+
+  "tooltipSit": {
+    "message": "Sitting – $MINUTES$ min left",
+    "placeholders": { "minutes": { "content": "$1", "example": "45" } }
+  },
+  "tooltipStand": {
+    "message": "Standing – $MINUTES$ min left",
+    "placeholders": { "minutes": { "content": "$1", "example": "15" } }
+  },
+  "tooltipPaused": {
+    "message": "Paused – $MINUTES$ min left",
+    "placeholders": { "minutes": { "content": "$1", "example": "12" } }
+  }
+}

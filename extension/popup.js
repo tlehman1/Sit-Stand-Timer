@@ -1,0 +1,229 @@
+import {
+  SNOOZE_MINUTES,
+  clampMinutes,
+  loadSettings,
+  loadState,
+  localizePage,
+  otherPhase,
+  phaseMinutes,
+  saveSettings,
+  send,
+  t,
+} from './shared.js';
+
+const $ = (id) => document.getElementById(id);
+const phaseButtons = [...document.querySelectorAll('.phase')];
+const minuteInputs = { sitMinutes: $('sitMinutes'), standMinutes: $('standMinutes') };
+
+// Per status: [command sent to the service worker, label] for the two timer buttons.
+const BUTTONS = {
+  idle: { primary: ['start', 'btnStart'] },
+  running: { primary: ['pause', 'btnPause'], secondary: ['stop', 'btnStop'] },
+  paused: { primary: ['resume', 'btnResume'], secondary: ['stop', 'btnStop'] },
+};
+
+// The reminder opens by itself and takes the keyboard focus. Key presses are ignored for
+// this long, so typing that was meant for a web page cannot answer it by accident.
+const KEY_GUARD_MS = 1500;
+
+let state;
+let settings;
+let ticker = null;
+let reminderSince = null;
+let closing = false;
+
+// --- Timer view ---
+
+function formatTime(ms) {
+  const seconds = Math.max(0, Math.ceil(ms / 1000));
+  const mm = String(Math.floor(seconds / 60)).padStart(2, '0');
+  const ss = String(seconds % 60).padStart(2, '0');
+  return `${mm}:${ss}`;
+}
+
+function drawClock() {
+  let remaining = 0;
+  let total = 0;
+  if (state.status === 'running') {
+    remaining = state.endTime - Date.now();
+    total = state.durationMs;
+  } else if (state.status === 'paused') {
+    remaining = state.remainingMs;
+    total = state.durationMs;
+  } else {
+    remaining = total = phaseMinutes(settings, state.phase) * 60_000;
+  }
+  const fraction = total ? Math.min(1, Math.max(0, remaining / total)) : 1;
+  $('time').textContent = formatTime(remaining);
+  $('progress').style.strokeDashoffset = String(1000 * (1 - fraction));
+}
+
+function setButton(button, config) {
+  button.hidden = !config;
+  if (!config) return;
+  const [command, label] = config;
+  button.dataset.command = command;
+  button.textContent = t(label);
+}
+
+function renderTimer() {
+  const { status, phase } = state;
+  document.body.dataset.status = status;
+  document.body.dataset.phase = phase;
+  for (const button of phaseButtons) {
+    button.setAttribute('aria-pressed', String(button.dataset.phase === phase));
+  }
+
+  const captions = {
+    idle: 'captionIdle',
+    running: phase === 'stand' ? 'captionStand' : 'captionSit',
+    paused: 'captionPaused',
+  };
+  $('caption').textContent = t(captions[status] ?? 'captionIdle');
+  setButton($('primary'), BUTTONS[status]?.primary);
+  setButton($('secondary'), BUTTONS[status]?.secondary);
+
+  // Leave a field alone while the user is typing in it.
+  for (const [key, input] of Object.entries(minuteInputs)) {
+    if (document.activeElement !== input) input.value = settings[key];
+  }
+  $('durationHint').hidden = status === 'idle';
+  $('soundEnabled').checked = settings.soundEnabled;
+  $('volume').value = settings.volume;
+  $('volume').disabled = !settings.soundEnabled;
+  $('testSound').disabled = !settings.soundEnabled;
+  $('autoStart').checked = settings.autoStart;
+
+  drawClock();
+  ticker = status === 'running' ? setInterval(drawClock, 250) : null;
+}
+
+// --- Reminder view ---
+
+function renderReminder(prompt) {
+  const toStand = prompt.to === 'stand';
+  const minutes = [String(phaseMinutes(settings, prompt.to))];
+
+  document.body.dataset.to = prompt.to;
+  $('reminderTitle').textContent = t(toStand ? 'promptStandTitle' : 'promptSitTitle');
+  $('reminderText').textContent = t(toStand ? 'promptStandText' : 'promptSitText');
+  if (prompt.auto) {
+    $('reminderNext').textContent = t(toStand ? 'promptRunningStand' : 'promptRunningSit', minutes);
+  } else {
+    $('reminderNext').textContent = t(toStand ? 'promptNextStand' : 'promptNextSit', minutes);
+  }
+  $('confirm').textContent = t(prompt.auto ? 'btnOk' : 'btnDone');
+  $('snooze').textContent = t('btnSnooze', [String(SNOOZE_MINUTES)]);
+  $('snooze').hidden = prompt.auto;
+
+  if (reminderSince === null) {
+    reminderSince = performance.now();
+    document.activeElement?.blur?.();
+  }
+}
+
+// A reminder is open while the service worker holds a prompt (or waits for the answer).
+function activePrompt() {
+  if (state.prompt) return state.prompt;
+  return state.status === 'waiting' ? { to: otherPhase(state.phase), auto: false } : null;
+}
+
+function render() {
+  const prompt = activePrompt();
+  clearInterval(ticker);
+  ticker = null;
+
+  document.body.dataset.view = prompt ? 'reminder' : 'timer';
+  $('timerView').hidden = Boolean(prompt);
+  $('reminderView').hidden = !prompt;
+  if (prompt) {
+    renderReminder(prompt);
+  } else {
+    reminderSince = null;
+    delete document.body.dataset.to;
+    renderTimer();
+  }
+  document.body.dataset.ready = '';
+}
+
+async function refresh() {
+  if (closing) return;
+  [state, settings] = await Promise.all([loadState(), loadSettings()]);
+  render();
+}
+
+// --- Timer controls ---
+
+for (const id of ['primary', 'secondary']) {
+  $(id).addEventListener('click', (event) => send(event.currentTarget.dataset.command));
+}
+
+for (const button of phaseButtons) {
+  button.addEventListener('click', () => send('selectPhase', { phase: button.dataset.phase }));
+}
+
+// --- Reminder controls ---
+
+async function answer(command, event) {
+  const byKeyboard = event.detail === 0;
+  if (byKeyboard && performance.now() - reminderSince < KEY_GUARD_MS) return;
+  closing = true;
+  await send(command);
+  window.close();
+}
+
+$('confirm').addEventListener('click', (event) => answer('confirm', event));
+$('snooze').addEventListener('click', (event) => answer('snooze', event));
+$('stopTimer').addEventListener('click', (event) => answer('stop', event));
+
+// --- Settings ---
+
+for (const [key, input] of Object.entries(minuteInputs)) {
+  // Save while typing (the popup may close before "change" fires) ...
+  input.addEventListener('input', () => {
+    const minutes = Number(input.value);
+    if (input.value !== '' && Number.isInteger(minutes) && minutes === clampMinutes(minutes)) {
+      saveSettings({ [key]: minutes });
+    }
+  });
+  // ... and tidy up whatever is left in the field afterwards.
+  input.addEventListener('change', () => {
+    const minutes = clampMinutes(input.value, settings[key]);
+    input.value = minutes;
+    saveSettings({ [key]: minutes });
+  });
+}
+
+$('soundEnabled').addEventListener('change', (event) => {
+  saveSettings({ soundEnabled: event.target.checked });
+});
+
+$('volume').addEventListener('change', (event) => {
+  saveSettings({ volume: Number(event.target.value) });
+});
+
+$('autoStart').addEventListener('change', (event) => {
+  saveSettings({ autoStart: event.target.checked });
+});
+
+$('testSound').addEventListener('click', () => send('testSound'));
+
+// --- Start ---
+
+// The open connection tells the service worker when the popup closes: it disconnects with
+// it. Chrome may stop the worker while the popup is still open, so reconnect in that case.
+function connect() {
+  const port = chrome.runtime.connect({ name: 'popup' });
+  port.onDisconnect.addListener(() => {
+    void chrome.runtime.lastError;
+    setTimeout(connect, 1000);
+  });
+}
+
+chrome.storage.onChanged.addListener((_changes, area) => {
+  if (area === 'local') refresh();
+});
+
+localizePage();
+refresh();
+connect();

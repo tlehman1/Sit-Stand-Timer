@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Sit-Stand Timer</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body data-view="timer" data-status="idle" data-phase="sit">
+    <div id="timerView">
+      <main>
+        <div class="phases" role="group" data-i18n-aria-label="phaseGroupLabel">
+          <button class="phase" type="button" data-phase="sit" aria-pressed="true">
+            <svg viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M4.5 2.5v7h7M5.5 9.5v4M10.5 9.5v4" />
+            </svg>
+            <span data-i18n="phaseSit"></span>
+          </button>
+          <button class="phase" type="button" data-phase="stand" aria-pressed="false">
+            <svg viewBox="0 0 16 16" aria-hidden="true">
+              <circle cx="8" cy="3" r="1.6" />
+              <path d="M8 6v4.5M8 10.5l-2 3.5M8 10.5l2 3.5M5 7.5h6" />
+            </svg>
+            <span data-i18n="phaseStand"></span>
+          </button>
+        </div>
+
+        <div class="dial">
+          <svg class="ring" viewBox="0 0 200 200" aria-hidden="true">
+            <circle class="ring-track" cx="100" cy="100" r="90" />
+            <circle class="ring-progress" id="progress" cx="100" cy="100" r="90" pathLength="1000" />
+          </svg>
+          <div class="dial-text">
+            <span class="time" id="time" role="timer"></span>
+            <span class="caption" id="caption"></span>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-primary" id="primary" type="button"></button>
+          <button class="btn btn-quiet" id="secondary" type="button" hidden></button>
+        </div>
+      </main>
+
+      <section class="settings">
+        <h2 data-i18n="settingsTitle"></h2>
+
+        <label class="row">
+          <span data-i18n="settingSit"></span>
+          <span class="field">
+            <input id="sitMinutes" type="number" min="1" max="240" step="1" inputmode="numeric" />
+            <span data-i18n="unitMinutes"></span>
+          </span>
+        </label>
+
+        <label class="row">
+          <span data-i18n="settingStand"></span>
+          <span class="field">
+            <input id="standMinutes" type="number" min="1" max="240" step="1" inputmode="numeric" />
+            <span data-i18n="unitMinutes"></span>
+          </span>
+        </label>
+
+        <p class="hint" id="durationHint" data-i18n="settingDurationHint" hidden></p>
+
+        <div class="row">
+          <label for="soundEnabled" data-i18n="settingSound"></label>
+          <span class="field">
+            <input id="volume" type="range" min="0.1" max="1" step="0.05" data-i18n-aria-label="settingVolume" />
+            <button
+              class="icon-btn"
+              id="testSound"
+              type="button"
+              data-i18n-title="btnTestSound"
+              data-i18n-aria-label="btnTestSound"
+            >
+              <svg viewBox="0 0 16 16" aria-hidden="true">
+                <path class="filled" d="M2.5 6.2v3.6h2.4l3.1 2.6V3.6L4.9 6.2z" />
+                <path d="M10.6 6a3 3 0 0 1 0 4M12.4 4.2a5.5 5.5 0 0 1 0 7.6" />
+              </svg>
+            </button>
+            <input class="switch" id="soundEnabled" type="checkbox" />
+          </span>
+        </div>
+
+        <label class="row">
+          <span data-i18n="settingAutoStart"></span>
+          <input class="switch" id="autoStart" type="checkbox" />
+        </label>
+        <p class="hint" data-i18n="settingAutoStartHint"></p>
+      </section>
+    </div>
+
+    <!-- Replaces the timer when it is time to change position. The drawing is a front view
+         of a height-adjustable desk; the "lift" group moves up or down. -->
+    <section class="reminder" id="reminderView" hidden>
+      <svg class="scene" viewBox="0 0 320 210" aria-hidden="true">
+        <line class="floor" x1="24" y1="200" x2="296" y2="200" />
+
+        <g class="chair for-sit">
+          <rect x="22" y="110" width="9" height="42" rx="4.5" />
+          <rect x="22" y="146" width="48" height="10" rx="5" />
+          <rect x="43" y="156" width="6" height="26" />
+          <rect x="26" y="180" width="40" height="6" rx="3" />
+          <circle cx="30" cy="191" r="5" />
+          <circle cx="62" cy="191" r="5" />
+        </g>
+
+        <g class="lift">
+          <rect x="95" y="124" width="10" height="72" />
+          <rect x="215" y="124" width="10" height="72" />
+          <rect x="62" y="112" width="196" height="14" rx="5" />
+          <rect class="screen" x="124" y="58" width="72" height="42" rx="6" />
+          <rect x="156" y="100" width="8" height="8" />
+          <rect x="140" y="106" width="40" height="6" rx="3" />
+          <rect x="212" y="98" width="14" height="14" rx="3" />
+          <path class="outline" d="M226 101h3a4 4 0 0 1 0 8h-3" />
+        </g>
+
+        <rect x="92" y="132" width="16" height="56" rx="3" />
+        <rect x="212" y="132" width="16" height="56" rx="3" />
+        <rect x="74" y="186" width="52" height="10" rx="5" />
+        <rect x="194" y="186" width="52" height="10" rx="5" />
+
+        <g class="chevrons for-stand" transform="translate(34 0)">
+          <path class="c3" transform="translate(0 100)" d="M-12 6 0 -6 12 6" />
+          <path class="c2" transform="translate(0 124)" d="M-12 6 0 -6 12 6" />
+          <path class="c1" transform="translate(0 148)" d="M-12 6 0 -6 12 6" />
+        </g>
+        <g class="chevrons for-stand" transform="translate(286 0)">
+          <path class="c3" transform="translate(0 100)" d="M-12 6 0 -6 12 6" />
+          <path class="c2" transform="translate(0 124)" d="M-12 6 0 -6 12 6" />
+          <path class="c1" transform="translate(0 148)" d="M-12 6 0 -6 12 6" />
+        </g>
+        <g class="chevrons for-sit" transform="translate(286 0)">
+          <path class="c1" transform="translate(0 100)" d="M-12 -6 0 6 12 -6" />
+          <path class="c2" transform="translate(0 124)" d="M-12 -6 0 6 12 -6" />
+          <path class="c3" transform="translate(0 148)" d="M-12 -6 0 6 12 -6" />
+        </g>
+      </svg>
+
+      <h1 id="reminderTitle"></h1>
+      <p class="lead" id="reminderText"></p>
+      <p class="next" id="reminderNext"></p>
+
+      <div class="reminder-actions">
+        <button class="btn btn-light" id="confirm" type="button"></button>
+        <button class="btn btn-ghost" id="snooze" type="button"></button>
+        <button class="btn-link" id="stopTimer" type="button" data-i18n="btnStopTimer"></button>
+      </div>
+    </section>
+
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>
