@@ -16,6 +16,14 @@
   "captionSit": { "message": "noch sitzen" },
   "captionStand": { "message": "noch stehen" },
   "captionPaused": { "message": "Pausiert" },
+  "captionOtherSit": {
+    "message": "Sitzen: noch $MINUTES$ Min.",
+    "placeholders": { "minutes": { "content": "$1", "example": "32" } }
+  },
+  "captionOtherStand": {
+    "message": "Stehen: noch $MINUTES$ Min.",
+    "placeholders": { "minutes": { "content": "$1", "example": "12" } }
+  },
 
   "btnStart": { "message": "Starten" },
   "btnPause": { "message": "Pause" },

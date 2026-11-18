@@ -95,9 +95,14 @@ async function startPhase(phase, { durationMs, prompt = null } = {}) {
   await updateBadge(state);
 }
 
-async function start() {
+// Without a phase it starts the selected one. With a phase (started in the popup while the
+// other phase runs) it switches over, and the interrupted phase ends.
+async function start({ phase } = {}) {
   const state = await loadState();
-  if (state.status === 'idle') await startPhase(state.phase);
+  const picked = PHASES.includes(phase) ? phase : state.phase;
+  if (state.status === 'idle' || (state.status !== 'waiting' && picked !== state.phase)) {
+    await startPhase(picked);
+  }
 }
 
 async function pause() {
@@ -135,17 +140,12 @@ async function stop() {
   await dismissNotification();
 }
 
-// The user picked a position by hand: while idle it only preselects the phase,
-// otherwise that phase starts right away with its full duration.
+// While idle the phase switch preselects the phase. While a phase runs it does not touch
+// the timer: the popup only shows the other phase until the user starts it.
 async function selectPhase({ phase }) {
   if (!PHASES.includes(phase)) return;
   const state = await loadState();
-  if (state.status === 'idle') {
-    await setState({ phase });
-  } else if (state.phase !== phase || state.status === 'waiting') {
-    await startPhase(phase);
-    await dismissNotification();
-  }
+  if (state.status === 'idle') await setState({ phase });
 }
 
 async function handlePhaseEnd() {

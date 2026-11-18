@@ -16,6 +16,14 @@
   "captionSit": { "message": "sitting time left" },
   "captionStand": { "message": "standing time left" },
   "captionPaused": { "message": "Paused" },
+  "captionOtherSit": {
+    "message": "Sitting: $MINUTES$ min left",
+    "placeholders": { "minutes": { "content": "$1", "example": "32" } }
+  },
+  "captionOtherStand": {
+    "message": "Standing: $MINUTES$ min left",
+    "placeholders": { "minutes": { "content": "$1", "example": "12" } }
+  },
 
   "btnStart": { "message": "Start" },
   "btnPause": { "message": "Pause" },

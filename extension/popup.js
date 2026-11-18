@@ -4,6 +4,7 @@ import {
   loadSettings,
   loadState,
   localizePage,
+  minutesLeft,
   otherPhase,
   phaseMinutes,
   saveSettings,
@@ -29,6 +30,8 @@ const KEY_GUARD_MS = 1500;
 let state;
 let settings;
 let ticker = null;
+// The phase the user looks at while the other one runs (null: the running phase).
+let viewPhase = null;
 let reminderSince = null;
 let closing = false;
 
@@ -41,10 +44,17 @@ function formatTime(ms) {
   return `${mm}:${ss}`;
 }
 
+// True while the popup shows the phase that is not running (the timer keeps going).
+function previewing() {
+  return viewPhase !== null && state.status !== 'idle' && viewPhase !== state.phase;
+}
+
 function drawClock() {
   let remaining = 0;
   let total = 0;
-  if (state.status === 'running') {
+  if (previewing()) {
+    remaining = total = phaseMinutes(settings, viewPhase) * 60_000;
+  } else if (state.status === 'running') {
     remaining = state.endTime - Date.now();
     total = state.durationMs;
   } else if (state.status === 'paused') {
@@ -67,7 +77,10 @@ function setButton(button, config) {
 }
 
 function renderTimer() {
-  const { status, phase } = state;
+  if (!previewing()) viewPhase = null;
+  const preview = viewPhase !== null;
+  const status = preview ? 'idle' : state.status;
+  const phase = viewPhase ?? state.phase;
   document.body.dataset.status = status;
   document.body.dataset.phase = phase;
   for (const button of phaseButtons) {
@@ -79,7 +92,14 @@ function renderTimer() {
     running: phase === 'stand' ? 'captionStand' : 'captionSit',
     paused: 'captionPaused',
   };
-  $('caption').textContent = t(captions[status] ?? 'captionIdle');
+  if (preview) {
+    // Name the phase that keeps running in the background and its minutes.
+    const left = state.status === 'running' ? state.endTime - Date.now() : state.remainingMs;
+    const key = state.phase === 'stand' ? 'captionOtherStand' : 'captionOtherSit';
+    $('caption').textContent = t(key, [String(minutesLeft(left))]);
+  } else {
+    $('caption').textContent = t(captions[status] ?? 'captionIdle');
+  }
   setButton($('primary'), BUTTONS[status]?.primary);
   setButton($('secondary'), BUTTONS[status]?.secondary);
 
@@ -155,11 +175,26 @@ async function refresh() {
 // --- Timer controls ---
 
 for (const id of ['primary', 'secondary']) {
-  $(id).addEventListener('click', (event) => send(event.currentTarget.dataset.command));
+  $(id).addEventListener('click', (event) => {
+    const { command } = event.currentTarget.dataset;
+    // "Start" on the other phase switches over to it.
+    const extra = command === 'start' && previewing() ? { phase: viewPhase } : undefined;
+    viewPhase = null;
+    send(command, extra);
+  });
 }
 
 for (const button of phaseButtons) {
-  button.addEventListener('click', () => send('selectPhase', { phase: button.dataset.phase }));
+  button.addEventListener('click', () => {
+    const { phase } = button.dataset;
+    if (state.status === 'idle') {
+      send('selectPhase', { phase });
+    } else {
+      // A running or paused phase keeps going: just look at the other one.
+      viewPhase = phase;
+      render();
+    }
+  });
 }
 
 // --- Reminder controls ---

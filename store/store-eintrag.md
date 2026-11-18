@@ -6,7 +6,7 @@ Alles, was du beim Einreichen brauchst: die Dateien, die Texte zum Einfügen und
 
 | Wofür | Datei |
 | --- | --- |
-| Paket zum Hochladen | `dist/sit-stand-timer-1.0.0.zip` |
+| Paket zum Hochladen | `dist/sit-stand-timer-1.0.1.zip` |
 | Store-Symbol (128 × 128) | `extension/icons/icon128.png` |
 | Screenshots Englisch (1280 × 800) | `store/screenshots/en/` |
 | Screenshots Deutsch (1280 × 800) | `store/screenshots/de/` |
@@ -33,7 +33,7 @@ node tools\make-store-images.mjs
 
 ## 2. Paket hochladen
 
-Im Dashboard ein neues Element anlegen („Add new item") und `dist/sit-stand-timer-1.0.0.zip` hochladen. Titel und Kurzbeschreibung übernimmt der Store aus dem Paket, in Englisch und Deutsch.
+Im Dashboard ein neues Element anlegen („Add new item") und `dist/sit-stand-timer-1.0.1.zip` hochladen. Titel und Kurzbeschreibung übernimmt der Store aus dem Paket, in Englisch und Deutsch.
 
 ## 3. Reiter „Store-Eintrag" (Store listing)
 
