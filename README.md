@@ -2,7 +2,7 @@
 
 Chrome-Erweiterung für den höhenverstellbaren Schreibtisch: Du legst fest, wie lange du sitzen und wie lange du stehen möchtest, und ein Countdown läuft herunter. Die verbleibenden Minuten stehen im Symbol in der Symbolleiste. Ist eine Phase vorbei, ertönt ein Ton und unter dem Symbol klappt eine Erinnerung mit Animation auf: Tisch hoch- oder herunterfahren.
 
-- Eigene Zeiten für Sitzen und Stehen (1–240 Minuten)
+- Eigene Zeiten für Sitzen und Stehen (1–240 Minuten), mit einem Klick zurück auf 45/15
 - Countdown im Symbol, blauviolett beim Sitzen, grün beim Stehen
 - Erinnerung mit Animation und Ton, „In 5 Minuten erinnern"
 - Wechsel bestätigen oder nächste Phase automatisch starten

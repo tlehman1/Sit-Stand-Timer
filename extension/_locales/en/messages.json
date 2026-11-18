@@ -68,6 +68,13 @@
   "settingSit": { "message": "Sitting" },
   "settingStand": { "message": "Standing" },
   "unitMinutes": { "message": "min" },
+  "btnResetDurations": {
+    "message": "Restore default durations ($SIT$ min sitting, $STAND$ min standing)",
+    "placeholders": {
+      "sit": { "content": "$1", "example": "45" },
+      "stand": { "content": "$2", "example": "15" }
+    }
+  },
   "settingDurationHint": { "message": "New durations apply from the next phase." },
   "settingSound": { "message": "Sound" },
   "settingVolume": { "message": "Volume" },

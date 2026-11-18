@@ -68,6 +68,13 @@
   "settingSit": { "message": "Sitzen" },
   "settingStand": { "message": "Stehen" },
   "unitMinutes": { "message": "Min." },
+  "btnResetDurations": {
+    "message": "Standardzeiten wiederherstellen ($SIT$ Min. Sitzen, $STAND$ Min. Stehen)",
+    "placeholders": {
+      "sit": { "content": "$1", "example": "45" },
+      "stand": { "content": "$2", "example": "15" }
+    }
+  },
   "settingDurationHint": { "message": "Geänderte Zeiten gelten ab der nächsten Phase." },
   "settingSound": { "message": "Ton" },
   "settingVolume": { "message": "Lautstärke" },

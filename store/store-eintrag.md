@@ -6,7 +6,7 @@ Alles, was du beim Einreichen brauchst: die Dateien, die Texte zum Einfügen und
 
 | Wofür | Datei |
 | --- | --- |
-| Paket zum Hochladen | `dist/sit-stand-timer-1.0.2.zip` |
+| Paket zum Hochladen | `dist/sit-stand-timer-1.0.3.zip` |
 | Store-Symbol (128 × 128) | `extension/icons/icon128.png` |
 | Screenshots Englisch (1280 × 800) | `store/screenshots/en/` |
 | Screenshots Deutsch (1280 × 800) | `store/screenshots/de/` |
@@ -33,7 +33,7 @@ node tools\make-store-images.mjs
 
 ## 2. Paket hochladen
 
-Im Dashboard ein neues Element anlegen („Add new item") und `dist/sit-stand-timer-1.0.2.zip` hochladen. Titel und Kurzbeschreibung übernimmt der Store aus dem Paket, in Englisch und Deutsch.
+Im Dashboard ein neues Element anlegen („Add new item") und `dist/sit-stand-timer-1.0.3.zip` hochladen. Titel und Kurzbeschreibung übernimmt der Store aus dem Paket, in Englisch und Deutsch.
 
 ## 3. Reiter „Store-Eintrag" (Store listing)
 
@@ -52,7 +52,7 @@ Sit-Stand Timer reminds you to alternate between sitting and standing at your he
 Set how many minutes you want to sit and how many you want to stand, then press Start. The minutes left are shown right on the toolbar icon. When a phase is over you hear a short chime and a reminder opens under the icon, with a small animation of the desk going up or down. Move your desk, confirm, and the next phase starts.
 
 Features
-• Separate durations for sitting and standing (1–240 minutes)
+• Separate durations for sitting and standing (1–240 minutes), back to 45/15 with one click
 • Countdown on the toolbar icon: indigo while sitting, green while standing
 • Reminder with animation and a chime: rising tones mean "desk up", falling tones "desk down"
 • "Remind me in 5 minutes" if now is a bad moment
@@ -75,7 +75,7 @@ Der Sitz-Steh-Timer erinnert dich daran, am höhenverstellbaren Schreibtisch reg
 Du legst fest, wie viele Minuten du sitzen und wie viele du stehen möchtest, und drückst auf „Starten". Die verbleibenden Minuten stehen direkt im Symbol in der Symbolleiste. Ist eine Phase vorbei, ertönt ein kurzer Ton und unter dem Symbol klappt eine Erinnerung auf, mit einer kleinen Animation des Tisches, der hoch- oder herunterfährt. Tisch verstellen, bestätigen, und die nächste Phase beginnt.
 
 Funktionen
-• Eigene Zeiten für Sitzen und Stehen (1–240 Minuten)
+• Eigene Zeiten für Sitzen und Stehen (1–240 Minuten), mit einem Klick zurück auf 45/15
 • Countdown im Symbol: blauviolett beim Sitzen, grün beim Stehen
 • Erinnerung mit Animation und Ton: aufsteigende Töne bedeuten „Tisch hoch", absteigende „Tisch runter"
 • „In 5 Minuten erinnern", wenn es gerade nicht passt

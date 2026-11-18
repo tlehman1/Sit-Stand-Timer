@@ -1,4 +1,5 @@
 import {
+  DEFAULT_SETTINGS,
   SNOOZE_MINUTES,
   clampMinutes,
   loadSettings,
@@ -108,6 +109,9 @@ function renderTimer() {
     if (document.activeElement !== input) input.value = settings[key];
   }
   $('durationHint').hidden = status === 'idle';
+  $('resetDurations').hidden =
+    settings.sitMinutes === DEFAULT_SETTINGS.sitMinutes &&
+    settings.standMinutes === DEFAULT_SETTINGS.standMinutes;
   $('soundEnabled').checked = settings.soundEnabled;
   $('volume').value = settings.volume;
   $('volume').disabled = !settings.soundEnabled;
@@ -242,6 +246,23 @@ $('autoStart').addEventListener('change', (event) => {
 });
 
 $('testSound').addEventListener('click', () => send('testSound'));
+
+// Back to the default durations (only the two times; sound and auto-start stay).
+{
+  const label = t('btnResetDurations', [
+    String(DEFAULT_SETTINGS.sitMinutes),
+    String(DEFAULT_SETTINGS.standMinutes),
+  ]);
+  $('resetDurations').title = label;
+  $('resetDurations').setAttribute('aria-label', label);
+}
+$('resetDurations').addEventListener('click', () => {
+  const { sitMinutes, standMinutes } = DEFAULT_SETTINGS;
+  minuteInputs.sitMinutes.value = sitMinutes;
+  minuteInputs.standMinutes.value = standMinutes;
+  document.activeElement?.blur?.();
+  saveSettings({ sitMinutes, standMinutes });
+});
 
 // --- Start ---
 

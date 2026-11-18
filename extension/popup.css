@@ -223,8 +223,16 @@ body[data-status='paused'] .ring-progress {
   border-top: 1px solid var(--line);
 }
 
-.settings h2 {
+.settings-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 22px;
   margin: 0 0 4px;
+}
+
+.settings h2 {
+  margin: 0;
   color: var(--muted);
   font-size: 12px;
   font-weight: 600;
@@ -299,6 +307,19 @@ button:disabled {
   stroke-linejoin: round;
 }
 
+.icon-btn.small {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+}
+.icon-btn.small svg {
+  width: 13px;
+  height: 13px;
+  stroke-width: 1.6;
+}
+.icon-btn[hidden] {
+  display: none;
+}
 .icon-btn .filled {
   fill: currentColor;
 }
