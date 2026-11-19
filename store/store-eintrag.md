@@ -6,7 +6,7 @@ Alles, was du beim Einreichen brauchst: die Dateien, die Texte zum Einfügen und
 
 | Wofür | Datei |
 | --- | --- |
-| Paket zum Hochladen | `dist/sit-stand-timer-1.0.3.zip` |
+| Paket zum Hochladen | `dist/sit-stand-timer-1.1.0.zip` |
 | Store-Symbol (128 × 128) | `extension/icons/icon128.png` |
 | Screenshots Englisch (1280 × 800) | `store/screenshots/en/` |
 | Screenshots Deutsch (1280 × 800) | `store/screenshots/de/` |
@@ -33,14 +33,14 @@ node tools\make-store-images.mjs
 
 ## 2. Paket hochladen
 
-Im Dashboard ein neues Element anlegen („Add new item") und `dist/sit-stand-timer-1.0.3.zip` hochladen. Titel und Kurzbeschreibung übernimmt der Store aus dem Paket, in Englisch und Deutsch.
+Im Dashboard ein neues Element anlegen („Add new item") und `dist/sit-stand-timer-1.1.0.zip` hochladen. Titel und Kurzbeschreibung übernimmt der Store aus dem Paket, in Englisch und Deutsch.
 
 ## 3. Reiter „Store-Eintrag" (Store listing)
 
 - **Kategorie:** Well-being. Alternative: Workflow & Planning.
 - **Sprache:** Englisch ist die Standardsprache des Pakets, Deutsch kommt als zweite Sprache dazu. Über die Sprachauswahl oben auf der Seite bekommt jede Sprache ihre eigene Beschreibung und ihre eigenen Screenshots.
 - **Store-Symbol:** `extension/icons/icon128.png`
-- **Screenshots:** die drei Bilder aus `store/screenshots/en/` für Englisch, die drei aus `store/screenshots/de/` für Deutsch.
+- **Screenshots:** die vier Bilder aus `store/screenshots/en/` für Englisch, die vier aus `store/screenshots/de/` für Deutsch.
 - **Kleine Werbekachel:** `store/promo-tile-440x280.png`. Sie gilt für alle Sprachen und enthält deshalb keinen Text. Sie ist freiwillig, Einträge ohne Kachel werden im Store aber weiter hinten einsortiert.
 - **Homepage-URL, Support-URL:** freiwillig, können leer bleiben.
 
@@ -55,6 +55,7 @@ Features
 • Separate durations for sitting and standing (1–240 minutes), back to 45/15 with one click
 • Countdown on the toolbar icon: indigo while sitting, green while standing
 • Reminder with animation and a chime: rising tones mean "desk up", falling tones "desk down"
+• Optional stretching exercises: after every change the timer shows one of seven short, animated exercises for neck, shoulders, back and legs
 • "Remind me in 5 minutes" if now is a bad moment
 • Confirm each change yourself, or let the next phase start automatically
 • Pause, stop or switch position by hand at any time
@@ -78,6 +79,7 @@ Funktionen
 • Eigene Zeiten für Sitzen und Stehen (1–240 Minuten), mit einem Klick zurück auf 45/15
 • Countdown im Symbol: blauviolett beim Sitzen, grün beim Stehen
 • Erinnerung mit Animation und Ton: aufsteigende Töne bedeuten „Tisch hoch", absteigende „Tisch runter"
+• Dehnübungen zum Zuschalten: Nach jedem Wechsel zeigt der Timer eine von sieben kurzen, animierten Übungen für Nacken, Schultern, Rücken und Beine
 • „In 5 Minuten erinnern", wenn es gerade nicht passt
 • Wechsel selbst bestätigen oder die nächste Phase automatisch starten lassen
 • Jederzeit pausieren, stoppen oder die Position von Hand wechseln
@@ -95,7 +97,7 @@ Die Erweiterung arbeitet vollständig auf deinem Gerät. Sie sammelt keine Daten
 ### Alleiniger Zweck (Single purpose)
 
 ```text
-Sit-Stand Timer has one purpose: it runs a countdown for alternating sitting and standing phases at a height-adjustable desk and reminds the user when it is time to change position.
+Sit-Stand Timer has one purpose: it runs a countdown for alternating sitting and standing phases at a height-adjustable desk and reminds the user when it is time to change position, optionally followed by a short stretching exercise.
 ```
 
 ### Begründung der Berechtigungen
@@ -109,7 +111,7 @@ Ends a sitting or standing phase at the right time and updates the minutes shown
 `storage`
 
 ```text
-Saves the user's settings (sitting and standing duration, sound on/off, volume, auto-start) and the current state of the timer locally with chrome.storage.local, so the timer survives restarts of the service worker and of the browser. Nothing leaves the device.
+Saves the user's settings (sitting and standing duration, sound on/off, volume, auto-start, stretching exercises on/off) and the current state of the timer locally with chrome.storage.local, so the timer survives restarts of the service worker and of the browser. Nothing leaves the device.
 ```
 
 `notifications`
@@ -148,7 +150,7 @@ Die Erweiterung verarbeitet keine Nutzerdaten. Falls das Dashboard trotzdem eine
 ```text
 Privacy policy for Sit-Stand Timer
 
-Sit-Stand Timer does not collect, store or transmit personal data, and it makes no network requests. Your settings (durations, sound, volume, auto-start) and the state of the timer are saved locally in your browser with chrome.storage.local. They are removed when you uninstall the extension.
+Sit-Stand Timer does not collect, store or transmit personal data, and it makes no network requests. Your settings (durations, sound, volume, auto-start, stretching exercises) and the state of the timer are saved locally in your browser with chrome.storage.local. They are removed when you uninstall the extension.
 
 Contact: <deine Kontakt-E-Mail>
 ```

@@ -3,6 +3,7 @@
 //   store\promo-tile-440x280.png
 //
 //   node tools\make-store-images.mjs
+//   node tools\make-store-images.mjs --poses <folder>   (only a photo of every exercise)
 //
 // It starts a hidden Microsoft Edge with the extension loaded (the installed Chrome refuses
 // --load-extension), photographs the real popup in a few states and places those pictures
@@ -13,7 +14,7 @@ import { createHash } from 'node:crypto';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import zlib from 'node:zlib';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -50,8 +51,13 @@ const TEXTS = {
         'Zeiten frei wählbar',
         'Ton mit Lautstärkeregler',
         'Wechsel bestätigen oder automatisch weiter',
+        'Dehnübungen zum Zuschalten',
         'Helles und dunkles Design',
       ],
+    },
+    stretch: {
+      title: 'Kurz dehnen bei jedem Wechsel',
+      text: 'Auf Wunsch zeigt dir der Timer nach jedem Wechsel eine von sieben Übungen.',
     },
   },
   en: {
@@ -71,8 +77,13 @@ const TEXTS = {
         'Your own durations',
         'Chime with volume control',
         'Confirm changes or continue automatically',
+        'Optional stretching exercises',
         'Light and dark theme',
       ],
+    },
+    stretch: {
+      title: 'A quick stretch with every change',
+      text: 'If you like, the timer shows one of seven exercises after every change.',
     },
   },
 };
@@ -251,29 +262,50 @@ const running = (phase, minutes, secondsLeft) => ({
   prompt: null,
 });
 
-const waiting = (phase, to) => ({
+const otherPosition = (position) => (position === 'sit' ? 'stand' : 'sit');
+
+const waiting = (phase, to, stretch = null) => ({
   status: 'waiting',
   phase,
   endTime: null,
   remainingMs: null,
   durationMs: null,
-  prompt: { to, auto: false },
+  prompt: { to, auto: false, stretch },
 });
 
 const idle = { status: 'idle', phase: 'sit', endTime: null, remainingMs: null, durationMs: null, prompt: null };
 
-async function photographPopup(browser, name) {
+// The exercises on the fourth screenshot: [exercise, the position the reminder before it asked for].
+const STRETCH_PHOTOS = [
+  ['reach', 'stand'],
+  ['sidebend', 'sit'],
+  ['calfraise', 'stand'],
+];
+
+async function photographPopup(browser, name, stretches = STRETCH_PHOTOS) {
   const { targetId, session } = await openPopup(browser, name);
 
-  const photo = async (scheme, state) => {
+  const photo = async (scheme, state, stretchEnabled = false) => {
     await browser.send(
       'Emulation.setEmulatedMedia',
       { features: [{ name: 'prefers-color-scheme', value: scheme }] },
       session,
     );
-    await browser.evaluate(session, `await chrome.storage.local.set({ state: ${JSON.stringify(state)} });`);
+    await browser.evaluate(
+      session,
+      `await chrome.storage.local.set(${JSON.stringify({ state, settings: { stretchEnabled } })});`,
+    );
     await sleep(700);
-    // Hold the reminder animation at a frame where the desk has arrived.
+    if (state.prompt?.stretch) {
+      // The exercise follows the answered reminder. A click with detail 1 counts as a mouse
+      // click; the popup ignores key presses right after the reminder opened.
+      await browser.evaluate(
+        session,
+        `document.getElementById('confirm').dispatchEvent(new MouseEvent('click', { detail: 1 }));`,
+      );
+      await sleep(700);
+    }
+    // Hold the animation at a frame where the desk has arrived or the figure is in its pose.
     const height = await browser.evaluate(
       session,
       `for (const animation of document.getAnimations()) {
@@ -282,15 +314,25 @@ async function photographPopup(browser, name) {
        }
        return document.body.scrollHeight;`,
     );
-    return browser.screenshot(session, { x: 0, y: 0, width: 320, height, scale: 2 });
+    const png = await browser.screenshot(session, { x: 0, y: 0, width: 320, height, scale: 2 });
+    if (state.prompt?.stretch) {
+      // The popup stays on the exercise until it is closed: load it again for the next photo.
+      await browser.evaluate(session, 'setTimeout(() => location.reload(), 0);');
+      await sleep(1000);
+    }
+    return png;
   };
 
   const photos = {
     timer: await photo('light', running('sit', 45, 31 * 60 + 42)),
     stand: await photo('light', waiting('sit', 'stand')),
     sit: await photo('light', waiting('stand', 'sit')),
-    dark: await photo('dark', running('stand', 15, 9 * 60 + 41)),
+    dark: await photo('dark', running('stand', 15, 9 * 60 + 41), true),
+    stretches: [],
   };
+  for (const [stretch, to] of stretches) {
+    photos.stretches.push(await photo('light', waiting(otherPosition(to), to, stretch), true));
+  }
 
   // Leave no open reminder behind, otherwise closing the tab raises a notification.
   await browser.evaluate(session, `await chrome.storage.local.set({ state: ${JSON.stringify(idle)} });`);
@@ -349,6 +391,8 @@ const STYLE = `
   .centered p { margin-top: 14px; }
   .pair { display: flex; gap: 56px; margin-top: 42px; }
   .pair .shot { height: 520px; }
+  .trio { gap: 40px; margin-top: 72px; }
+  .trio .shot { height: 410px; }
 `;
 
 const page = (body, bodyClass = '') =>
@@ -379,6 +423,12 @@ function screenshotPages(texts, name, photos) {
         <ul>${texts.settings.points.map((point) => `<li>${point}</li>`).join('')}</ul>
       </div>
       ${shot(photos.dark)}`),
+    '4-stretch': page(
+      `<h1>${texts.stretch.title}</h1>
+       <p>${texts.stretch.text}</p>
+       <div class="pair trio">${photos.stretches.map(shot).join('')}</div>`,
+      'centered',
+    ),
   };
 }
 
@@ -509,6 +559,11 @@ function save(file, png) {
   console.log(`wrote ${path.relative(root, file)} (${Math.round(png.length / 1024)} KB)`);
 }
 
+// "--poses <folder>": instead of the store pictures, write a photo of every exercise there.
+const posesArg = process.argv.indexOf('--poses');
+const posesDir = posesArg > 0 ? path.resolve(process.argv[posesArg + 1] ?? 'poses') : null;
+const { STRETCHES: stretchIds } = await import(pathToFileURL(path.join(extensionDir, 'shared.js')).href);
+
 for (const [language, texts] of Object.entries(TEXTS)) {
   const messages = JSON.parse(
     readFileSync(path.join(extensionDir, '_locales', language, 'messages.json'), 'utf8'),
@@ -516,6 +571,13 @@ for (const [language, texts] of Object.entries(TEXTS)) {
   const name = messages.extName.message;
   const browser = await Browser.launch(texts.browserLanguage);
   try {
+    if (posesDir) {
+      // Only the plain photos of all exercises, to check the drawings.
+      const all = stretchIds.map((id, i) => [id, i % 2 ? 'sit' : 'stand']);
+      const { stretches } = await photographPopup(browser, name, all);
+      stretches.forEach((png, i) => save(path.join(posesDir, `${language}-${stretchIds[i]}.png`), png));
+      continue;
+    }
     const photos = await photographPopup(browser, name);
     for (const [file, html] of Object.entries(screenshotPages(texts, name, photos))) {
       save(path.join(outDir, 'screenshots', language, `${file}.png`), await render(browser, html, 1280, 800));

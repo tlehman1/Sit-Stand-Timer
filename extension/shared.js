@@ -11,12 +11,18 @@ export const DEFAULT_SETTINGS = Object.freeze({
   soundEnabled: true,
   volume: 0.7,
   autoStart: false,
+  stretchEnabled: false,
 });
+
+// The stretching exercises; one of them follows each reminder if the user switched them on.
+// Each id has its texts in _locales (stretch_<id>_title/_text/_hint) and its animation in popup.css.
+export const STRETCHES = ['neck', 'shoulders', 'reach', 'sidebend', 'crossarm', 'calfraise', 'kneehug'];
 
 // status: 'idle' | 'running' | 'paused' | 'waiting'
 //   'waiting' = the phase is over and the timer waits until the user confirms the change.
 // phase:  the position the user is in right now ('sit' | 'stand').
-// prompt: { to, auto } while a "change your position" reminder is open, otherwise null.
+// prompt: { to, auto, stretch } while a "change your position" reminder is open, otherwise null.
+//   stretch = the exercise shown after the reminder (an id from STRETCHES), or null.
 export const DEFAULT_STATE = Object.freeze({
   status: 'idle',
   phase: 'sit',
@@ -26,6 +32,8 @@ export const DEFAULT_STATE = Object.freeze({
   prompt: null,
   // true while the timer is paused because the screen is locked (it resumes on unlock).
   pausedByLock: false,
+  // The exercise picked last, so the next one is a different one.
+  lastStretch: null,
 });
 
 export const otherPhase = (phase) => (phase === 'sit' ? 'stand' : 'sit');

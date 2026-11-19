@@ -1,6 +1,7 @@
 import {
   DEFAULT_SETTINGS,
   SNOOZE_MINUTES,
+  STRETCHES,
   clampMinutes,
   loadSettings,
   loadState,
@@ -35,6 +36,8 @@ let ticker = null;
 let viewPhase = null;
 let reminderSince = null;
 let closing = false;
+// The exercise on screen after the reminder was answered (an id from STRETCHES), else null.
+let stretch = null;
 
 // --- Timer view ---
 
@@ -117,6 +120,7 @@ function renderTimer() {
   $('volume').disabled = !settings.soundEnabled;
   $('testSound').disabled = !settings.soundEnabled;
   $('autoStart').checked = settings.autoStart;
+  $('stretchEnabled').checked = settings.stretchEnabled;
 
   drawClock();
   ticker = status === 'running' ? setInterval(drawClock, 250) : null;
@@ -152,15 +156,27 @@ function activePrompt() {
   return state.status === 'waiting' ? { to: otherPhase(state.phase), auto: false } : null;
 }
 
+// The exercise keeps the colours of the reminder it follows (data-to stays as it is).
+function renderStretch() {
+  document.body.dataset.stretch = stretch;
+  $('stretchTitle').textContent = t(`stretch_${stretch}_title`);
+  $('stretchText').textContent = t(`stretch_${stretch}_text`);
+  $('stretchHint').textContent = t(`stretch_${stretch}_hint`);
+}
+
 function render() {
-  const prompt = activePrompt();
+  const prompt = stretch ? null : activePrompt();
+  const view = stretch ? 'stretch' : prompt ? 'reminder' : 'timer';
   clearInterval(ticker);
   ticker = null;
 
-  document.body.dataset.view = prompt ? 'reminder' : 'timer';
-  $('timerView').hidden = Boolean(prompt);
-  $('reminderView').hidden = !prompt;
-  if (prompt) {
+  document.body.dataset.view = view;
+  $('timerView').hidden = view !== 'timer';
+  $('reminderView').hidden = view !== 'reminder';
+  $('stretchView').hidden = view !== 'stretch';
+  if (stretch) {
+    renderStretch();
+  } else if (prompt) {
     renderReminder(prompt);
   } else {
     reminderSince = null;
@@ -206,10 +222,20 @@ for (const button of phaseButtons) {
 async function answer(command, event) {
   const byKeyboard = event.detail === 0;
   if (byKeyboard && performance.now() - reminderSince < KEY_GUARD_MS) return;
+  // With the exercises switched on, one follows the confirmed change instead of closing.
+  const next = command === 'confirm' && STRETCHES.includes(state.prompt?.stretch) ? state.prompt.stretch : null;
   closing = true;
   await send(command);
-  window.close();
+  if (next === null) {
+    window.close();
+    return;
+  }
+  stretch = next;
+  closing = false;
+  render();
 }
+
+$('stretchDone').addEventListener('click', () => window.close());
 
 $('confirm').addEventListener('click', (event) => answer('confirm', event));
 $('snooze').addEventListener('click', (event) => answer('snooze', event));
@@ -243,6 +269,10 @@ $('volume').addEventListener('change', (event) => {
 
 $('autoStart').addEventListener('change', (event) => {
   saveSettings({ autoStart: event.target.checked });
+});
+
+$('stretchEnabled').addEventListener('change', (event) => {
+  saveSettings({ stretchEnabled: event.target.checked });
 });
 
 $('testSound').addEventListener('click', () => send('testSound'));

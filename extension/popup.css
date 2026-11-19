@@ -366,16 +366,16 @@ button:disabled {
 
 /* Reminder: replaces the timer when it is time to change position */
 
-body[data-view='reminder'] {
+body:is([data-view='reminder'], [data-view='stretch']) {
   color: #ffffff;
 }
 
-body[data-view='reminder'][data-to='sit'] {
+body:is([data-view='reminder'], [data-view='stretch'])[data-to='sit'] {
   background: linear-gradient(160deg, #4338ca, #6d28d9);
   --ink: #2e1065;
 }
 
-body[data-view='reminder'][data-to='stand'] {
+body:is([data-view='reminder'], [data-view='stretch'])[data-to='stand'] {
   background: linear-gradient(160deg, #0f766e, #047857);
   --ink: #053f35;
 }
@@ -530,6 +530,251 @@ body[data-to='sit'] .lift {
   }
 }
 
+/* Stretching exercise: a figure whose parts move. Each exercise gives the parts it moves a
+   pose (--pose) and one of the timelines below; the parts turn around their joints. */
+
+@property --pose {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --pose-b {
+  syntax: '*';
+  inherits: false;
+}
+
+.figure .limb {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 10;
+  stroke-linecap: round;
+}
+
+.figure * {
+  animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  animation-iteration-count: infinite;
+}
+
+.head {
+  transform-origin: 160px 68px;
+}
+
+.upper {
+  transform-origin: 160px 126px;
+}
+
+.arm-l {
+  transform-origin: 139px 72px;
+}
+
+.arm-r {
+  transform-origin: 181px 72px;
+}
+
+.fore-l {
+  transform-origin: 131px 100px;
+}
+
+.fore-r {
+  transform-origin: 189px 100px;
+}
+
+.thigh-l {
+  transform-origin: 151px 128px;
+}
+
+.thigh-r {
+  transform-origin: 169px 128px;
+}
+
+.foot {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+/* Into the pose, hold it, back again. */
+@keyframes hold {
+  0%,
+  18%,
+  100% {
+    transform: none;
+  }
+  45%,
+  82% {
+    transform: var(--pose);
+  }
+}
+
+/* Exercises with two sides take turns: first one side (a), then the other (b). */
+@keyframes side-a {
+  0%,
+  6%,
+  50%,
+  100% {
+    transform: none;
+  }
+  20%,
+  42% {
+    transform: var(--pose);
+  }
+}
+
+@keyframes side-b {
+  0%,
+  56%,
+  100% {
+    transform: none;
+  }
+  70%,
+  92% {
+    transform: var(--pose-b);
+  }
+}
+
+@keyframes both-sides {
+  0%,
+  6%,
+  50%,
+  56%,
+  100% {
+    transform: none;
+  }
+  20%,
+  42% {
+    transform: var(--pose);
+  }
+  70%,
+  92% {
+    transform: var(--pose-b);
+  }
+}
+
+body[data-stretch='neck'] .head {
+  --pose: rotate(-32deg);
+  --pose-b: rotate(32deg);
+  animation-name: both-sides;
+  animation-duration: 8.4s;
+}
+
+body[data-stretch='shoulders'] .arm {
+  --pose: translateY(-10px);
+  animation-name: hold;
+  animation-duration: 2.8s;
+}
+
+body[data-stretch='reach'] .arm {
+  animation-name: hold;
+  animation-duration: 4.2s;
+}
+
+body[data-stretch='reach'] .arm-l {
+  --pose: rotate(168deg);
+}
+
+body[data-stretch='reach'] .arm-r {
+  --pose: rotate(-168deg);
+}
+
+body[data-stretch='sidebend'] .upper {
+  --pose: rotate(14deg);
+  --pose-b: rotate(-14deg);
+  animation-name: both-sides;
+  animation-duration: 8.4s;
+}
+
+body[data-stretch='sidebend'] .arm-l {
+  --pose: rotate(165deg);
+  animation-name: side-a;
+  animation-duration: 8.4s;
+}
+
+body[data-stretch='sidebend'] .arm-r {
+  --pose-b: rotate(-165deg);
+  animation-name: side-b;
+  animation-duration: 8.4s;
+}
+
+body[data-stretch='crossarm'] .arm-l {
+  --pose: rotate(-90deg);
+  animation-name: side-a;
+  animation-duration: 8.4s;
+}
+
+body[data-stretch='crossarm'] .fore-r {
+  --pose: rotate(145deg);
+  animation-name: side-a;
+  animation-duration: 8.4s;
+}
+
+body[data-stretch='crossarm'] .arm-r {
+  --pose-b: rotate(90deg);
+  animation-name: side-b;
+  animation-duration: 8.4s;
+}
+
+body[data-stretch='crossarm'] .fore-l {
+  --pose-b: rotate(-145deg);
+  animation-name: side-b;
+  animation-duration: 8.4s;
+}
+
+/* On tiptoe: everything goes up, the feet stay on the floor and are seen standing upright. */
+body[data-stretch='calfraise'] .body {
+  --pose: translateY(-10px);
+  animation-name: hold;
+  animation-duration: 4.2s;
+}
+
+body[data-stretch='calfraise'] .foot {
+  --pose: translateY(10px) scaleY(1.9);
+  animation-name: hold;
+  animation-duration: 4.2s;
+}
+
+/* Seen from the front, a knee that comes up shortens the thigh and then turns it upwards;
+   the lower leg hangs from the knee and moves up with it. */
+body[data-stretch='kneehug'] .thigh-l {
+  --pose: scaleY(-0.9);
+  animation-name: side-a;
+  animation-duration: 8.4s;
+}
+
+body[data-stretch='kneehug'] .shin-l {
+  --pose: translateY(-57px);
+  animation-name: side-a;
+  animation-duration: 8.4s;
+}
+
+body[data-stretch='kneehug'] .thigh-r {
+  --pose-b: scaleY(-0.9);
+  animation-name: side-b;
+  animation-duration: 8.4s;
+}
+
+body[data-stretch='kneehug'] .shin-r {
+  --pose-b: translateY(-57px);
+  animation-name: side-b;
+  animation-duration: 8.4s;
+}
+
+body[data-stretch='kneehug'] .fore-l {
+  --pose: rotate(-75deg);
+  --pose-b: rotate(-75deg);
+  animation-name: both-sides;
+  animation-duration: 8.4s;
+}
+
+body[data-stretch='kneehug'] .fore-r {
+  --pose: rotate(75deg);
+  --pose-b: rotate(75deg);
+  animation-name: both-sides;
+  animation-duration: 8.4s;
+}
+
+#stretchView .lead {
+  font-size: 15px;
+}
+
 .reminder h1 {
   margin: 8px 0 2px;
   font-size: 26px;
@@ -610,5 +855,10 @@ body[data-to='sit'] .lift {
 
   body[data-to='stand'] .lift {
     transform: translateY(-52px);
+  }
+
+  /* The figure stands in the pose of the exercise (for two sides: the first one). */
+  .figure * {
+    transform: var(--pose, none);
   }
 }

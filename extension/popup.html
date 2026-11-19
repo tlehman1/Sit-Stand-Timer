@@ -100,6 +100,12 @@
           <input class="switch" id="autoStart" type="checkbox" />
         </label>
         <p class="hint" data-i18n="settingAutoStartHint"></p>
+
+        <label class="row">
+          <span data-i18n="settingStretch"></span>
+          <input class="switch" id="stretchEnabled" type="checkbox" />
+        </label>
+        <p class="hint" data-i18n="settingStretchHint"></p>
       </section>
     </div>
 
@@ -159,6 +165,51 @@
         <button class="btn btn-light" id="confirm" type="button"></button>
         <button class="btn btn-ghost" id="snooze" type="button"></button>
         <button class="btn-link" id="stopTimer" type="button" data-i18n="btnStopTimer"></button>
+      </div>
+    </section>
+
+    <!-- Follows the reminder if the stretching exercises are switched on. The figure is built
+         from parts that popup.css moves, one set of movements per exercise (body[data-stretch]). -->
+    <section class="reminder" id="stretchView" hidden>
+      <svg class="scene figure" viewBox="0 0 320 210" aria-hidden="true">
+        <line class="floor" x1="84" y1="200" x2="236" y2="200" />
+
+        <g class="body">
+          <path class="limb thigh thigh-l" d="M151 128 150 158" />
+          <g class="shin shin-l">
+            <path class="limb" d="M150 158 149 186" />
+            <rect class="foot" x="140" y="187" width="17" height="11" rx="5" />
+          </g>
+          <path class="limb thigh thigh-r" d="M169 128 170 158" />
+          <g class="shin shin-r">
+            <path class="limb" d="M170 158 171 186" />
+            <rect class="foot" x="163" y="187" width="17" height="11" rx="5" />
+          </g>
+
+          <g class="upper">
+            <rect class="screen" x="143" y="64" width="34" height="60" rx="12" />
+            <g class="head">
+              <path class="limb" d="M160 61V52" />
+              <circle cx="160" cy="40" r="15" />
+            </g>
+            <g class="arm arm-l">
+              <path class="limb" d="M139 72 131 100" />
+              <path class="limb fore fore-l" d="M131 100 129 126" />
+            </g>
+            <g class="arm arm-r">
+              <path class="limb" d="M181 72 189 100" />
+              <path class="limb fore fore-r" d="M189 100 191 126" />
+            </g>
+          </g>
+        </g>
+      </svg>
+
+      <h1 id="stretchTitle"></h1>
+      <p class="lead" id="stretchText"></p>
+      <p class="next" id="stretchHint"></p>
+
+      <div class="reminder-actions">
+        <button class="btn btn-light" id="stretchDone" type="button" data-i18n="btnStretchDone"></button>
       </div>
     </section>
 

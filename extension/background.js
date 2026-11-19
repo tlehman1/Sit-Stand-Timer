@@ -4,6 +4,7 @@
 import {
   PHASES,
   SNOOZE_MINUTES,
+  STRETCHES,
   loadSettings,
   loadState,
   minutesLeft,
@@ -174,7 +175,9 @@ async function handlePhaseEnd() {
     return;
   }
   const settings = await loadSettings();
-  const prompt = { to: otherPhase(state.phase), auto: settings.autoStart };
+  const stretch = settings.stretchEnabled ? pickStretch(state.lastStretch) : null;
+  const prompt = { to: otherPhase(state.phase), auto: settings.autoStart, stretch };
+  if (stretch) await setState({ lastStretch: stretch });
   if (settings.autoStart) {
     await startPhase(prompt.to, { prompt });
   } else {
@@ -184,6 +187,12 @@ async function handlePhaseEnd() {
     );
   }
   await announce(prompt, settings);
+}
+
+// A random exercise, but never the one that was shown last.
+function pickStretch(last) {
+  const choices = STRETCHES.filter((id) => id !== last);
+  return choices[Math.floor(Math.random() * choices.length)];
 }
 
 // "Done": the desk is moved, the next phase begins.
@@ -381,6 +390,10 @@ async function showNotification(prompt) {
     requireInteraction: !prompt.auto,
     silent: true,
   };
+  // The notification cannot show the exercise itself, so it at least names it.
+  if (prompt.stretch) {
+    options.message += `\n${t('notifyStretch', [t(`stretch_${prompt.stretch}_title`)])}`;
+  }
   if (!prompt.auto) {
     options.buttons = [
       { title: t('btnDoneShort') },
